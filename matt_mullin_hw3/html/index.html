@@ -137,11 +137,12 @@ td img {
 
 <h2>CSC 589 AU / Homework 3 / Image Filtering and Hybrid Images</h2>
 <div style="float: right; padding: 20px">
-<img src="../data/hybrid.png" />
-<p style="font-size: 14px">A hybrid image of a jet and a bird.</p>
+<img src="../data/hybrid1.png" />
+<p style="font-size: 14px">An example of a hybrid image between a jet and a bird.</p>
 </div>
 
-<p>The hybrid image was contructed by combining an image of a bird with a jet. These were the following steps used to create the output image:</p>
+
+<p>The hybrid image was contructed by combining an image of a bird with a jet. Click <a href="https://github.com/MattMullin/CSC589/tree/master/matt_mullin_hw3">here</a> to go to the GitHub repository. These were the following steps used to create the output image:</p>
 
 <ol>
 <li>Read in the images as numpy arrays</li>
@@ -205,26 +206,47 @@ plt.show()
 </code></pre>
 
 
-<!-- <div style="clear:both">
-<h3>Example heading</h3>
+<div style="clear:both">
+<h3>Attempting to Add Color to the Hybrid Image</h3>
+<div style="float: right; padding: 20px">
+<img src="../data/color_attempt.png" width="300px" />
+<p style="font-size: 14px">An example of a colored hybrid image of a dog and a cat</p>
+</div>
 
-<p> 	Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p> A great deal of effort was put into trying to make a hybrid image with color, with not much success. The 
+key for adding color into the hybrid image was figuring out how to separate the three color bands (RGB) associated with 
+an image into arrays that could be filtered. The following code shows the primary method for first separating the image 
+into three bands (represented by b, g, r) and then combinging the bands back together at the end of the filtering process.</p>
 
- -->
+
+
+<pre><code>
+b, g, r    = im1[:, :, 0], im1[:, :, 1], im1[:, :, 2] # For RGB image
+
+#Combining the color channels together to form RGB image
+low_pass_image = im1
+low_pass_image[:, :, 0] =  low_pass_blue
+low_pass_image[:, :, 1] =  low_pass_green
+low_pass_image[:, :, 2] =  low_pass_red
+
+</code></pre>
+
+<p> After the bands were separated, gaussian filter was applied to each band by convolving it with a 5x5 numpy array (similar to the 
+steps above). At first, the stratagey was just to repeat the same steps listed abouve for each band in both the high and low pass 
+filters, but this turned out to not be effective and caused major errors with the coloring of the image. </p>
+
+<div style="float: right; padding: 20px">
+	<img src="../data/crazy_cat.png" width="400px">
+</div>
+
+<p>
+The picture to the right shows some of the problems that were faced during the image processing.
+</p>
+
+
+
 
 <!-- 
-<h3>Results in a table</h3>
-
-<table border=1>
-<tr>
-<td>
-<img src="placeholder.jpg" width="24%"/>
-<img src="placeholder.jpg"  width="24%"/>
-<img src="placeholder.jpg" width="24%"/>
-<img src="placeholder.jpg" width="24%"/>
-</td>
-</tr>
-
 <tr>
 <td>
 <img src="placeholder.jpg" width="24%"/>
