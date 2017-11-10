@@ -1,0 +1,346 @@
+<html>
+<head>
+<title>CS 589 Project</title>
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 32px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	background: #333;
+	width: 100%;
+}
+
+#headersub {
+	color: #ccc;
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 14px;
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub">
+<h1>Matthew Mullin<span style="color: #DE3737"></span></h1>
+</div>
+</div>
+<div class="container">
+<h2>CSC 589 AU / Homework 4 / Image Blending Using Pyramids</h2>
+
+
+<p>This project was an attempt to use gaussian and laplacian pyramids to blend images together smoothly. The results were not ideal for 
+a variety of reasons, mainly due to my lack of experience with python in general as well as a lack of understanding about how to properly mix 
+images using this technique. The steps for mixing images using gaussian and laplacian pyramids are: </p>
+
+<div>
+<img align="right" width='40%' src="blended_apple.png"/>
+<!-- <p align="right" style="font-size: 14px">Example of a right floating element.</p> -->
+</div>
+
+<ol>
+<li>Create a laplacian pyramid for both of the input images</li>
+<li>Create a gaussian pyramid for the mask</li>
+<li>Attempt to blend the two laplacian images and the mask at every level of the pyramid while reconstructing it</li>
+<li>Combine all of the outputs to create the final blended image</li>
+</ol>
+
+<p>The image to the right is a colored output from the 'blended' function. It was an attempt to combine an apple and an orange. 
+The rendering wasnt fully sucessful, but there is a portion of the orange which partially blended with the original image..</p>
+
+
+<div style="clear:both">
+<h3>Challenges with This Project</h3>
+
+
+
+<h2>Creating the Gaussian and Laplcacian pyramids</h2>
+<p>The two functions below were created in order to render the gaussian and laplacian pyramids. This is a very 
+ineffieicnt way to repreat tasks with code however, I had great difficulty trying to create a loop that would accomplish the same
+task. The process used the fundamental priciples of creating image pyramids which is blurring the image before scaling it down in order to 
+preserve details and not cause artifacts. For the laplacian pyramid, a 5x5 kernal was convolved with the input image and then it was used to subtract with the 
+orginal laplacian image, and then was scaled down. </p>
+
+<pre><code>
+def shrink(img1):
+    gaussian_kernel = (1.0/256)*np.array([[1, 4,  6,  4,  1],
+    					[4, 16, 24, 16, 4],
+    					[6, 24, 72, 24, 6],
+    					[4, 16, 24, 16, 4],
+    					[1, 4,  6,  4,  1]])
+    gaussian_blur = filters.convolve(img1,gaussian_kernel, mode='reflect')
+    shrink = gaussian_blur[::2, ::2] 
+
+    gaussian_blur_2nd = filters.convolve(shrink,gaussian_kernel, mode='reflect')
+    shrink2 = gaussian_blur_2nd[::2, ::2] 
+
+    gaussian_blur_3rd = filters.convolve(shrink2,gaussian_kernel, mode='reflect')
+    shrink3 = gaussian_blur_3rd[::2, ::2] 
+
+    gaussian_blur_4th = filters.convolve(shrink3,gaussian_kernel, mode='reflect')
+    shrink4 = gaussian_blur_4th[::2, ::2] 
+
+    gaussian_blur_5th = filters.convolve(shrink4,gaussian_kernel, mode='reflect')
+    shrink5 = gaussian_blur_5th[::2, ::2] 
+
+    gaussian_blur_6th = filters.convolve(shrink5,gaussian_kernel, mode='reflect')
+    shrink6 = gaussian_blur_6th[::2, ::2] 
+
+    return shrink6
+
+
+def laplacian(img2):
+    gaussian_kernel = (1.0/256)*np.array([[1, 4,  6,  4,  1],
+    					[4, 16, 24, 16, 4],
+    					[6, 24, 72, 24, 6],
+    					[4, 16, 24, 16, 4],
+    					[1, 4,  6,  4,  1]])
+    gaussian_blur = filters.convolve(img2,gaussian_kernel, mode='reflect')
+    laplacian = img2 - gaussian_blur
+
+    laplacian_blur = filters.convolve(laplacian,gaussian_kernel, mode='reflect')
+    laplacian_layer2 = laplacian - laplacian_blur
+    lap_shrink = laplacian_layer2[::2, ::2] 
+
+    laplacian_blur2 = filters.convolve(lap_shrink,gaussian_kernel, mode='reflect')
+    laplacian_layer3 = lap_shrink - laplacian_blur2
+    lap_shrink2 = laplacian_layer3[::2, ::2] 
+
+    laplacian_blur3 = filters.convolve(lap_shrink2,gaussian_kernel, mode='reflect')
+    laplacian_layer4 = lap_shrink2 - laplacian_blur3
+    lap_shrink3 = laplacian_layer4[::2, ::2] 
+
+    laplacian_blur4 = filters.convolve(lap_shrink3,gaussian_kernel, mode='reflect')
+    laplacian_layer5 = lap_shrink3 - laplacian_blur4
+    lap_shrink4 = laplacian_layer5[::2, ::2] 
+
+    laplacian_blur5 = filters.convolve(lap_shrink4,gaussian_kernel, mode='reflect')
+    laplacian_layer6 = lap_shrink4 - laplacian_blur5
+    lap_shrink5 = laplacian_layer6[::2, ::2] 
+
+    laplacian_blur6 = filters.convolve(lap_shrink5,gaussian_kernel, mode='reflect')
+    laplacian_layer7 = lap_shrink5 - laplacian_blur6
+    lap_shrink6 = laplacian_layer7[::2, ::2] 
+
+    return lap_shrink6 
+
+</code></pre>
+
+<div style="clear:both">
+
+<h2>Reconstructing the Images</h2>
+<p>After the laplacian and gaussian pyramids were created, they were combined together and then needed to be reconstructed to the proper size.
+The following code is the process used to resize the image. There were many problems with this script which caused the images to remain very 
+blurry when they were scaled back to the orignal size. This is another example where much of this code could have been reduced using a loop.</p>
+
+<pre><code>
+def reconstruct(combined):
+    gaussian_kernel = (1.0/256)*np.array([[1, 4,  6,  4,  1],
+    					[4, 16, 24, 16, 4],
+    					[6, 24, 72, 24, 6],
+    					[4, 16, 24, 16, 4],
+    					[1, 4,  6,  4,  1]])
+    alpha = 30
+
+    combined_expanded = scipy.ndimage.interpolation.zoom(combined, 2)
+    combined_blur = filters.convolve(combined_expanded,gaussian_kernel, mode='reflect')    
+    combined_sharp = combined_expanded + alpha * (combined_expanded - combined_blur)
+
+    combined_expanded2 = scipy.ndimage.interpolation.zoom(combined_expanded, 2)
+    combined_blur2 = filters.convolve(combined_expanded2,gaussian_kernel, mode='reflect')    
+    combined_sharp2 = combined_expanded2 + alpha * (combined_expanded2 - combined_blur2)
+
+    combined_expanded3 = scipy.ndimage.interpolation.zoom(combined_expanded2, 2)
+    combined_blur3 = filters.convolve(combined_expanded3,gaussian_kernel, mode='reflect')    
+    combined_sharp3 = combined_expanded3 + alpha * (combined_expanded3 - combined_blur3)
+
+    combined_expanded4 = scipy.ndimage.interpolation.zoom(combined_expanded3, 2)
+    combined_blur4 = filters.convolve(combined_expanded4,gaussian_kernel, mode='reflect')    
+    combined_sharp4 = combined_expanded4 + alpha * (combined_expanded4 - combined_blur4)
+
+    combined_expanded5 = scipy.ndimage.interpolation.zoom(combined_expanded4, 2)
+    combined_blur5 = filters.convolve(combined_expanded5,gaussian_kernel, mode='reflect')    
+    combined_sharp5 = combined_expanded5 + alpha * (combined_expanded5 - combined_blur5)
+
+
+    return combined_sharp5
+</code></pre>
+
+<div style="clear:both">
+
+<h2>Blending Colored Images Together </h2>
+<p>This set of code deals with taking colored images and blending them together smoothly. The first step was to split the image
+into its 3 color bands and then apply a gaussian blur to each one. Then the laplacian image was created by subtracting that gaussian by the original image.
+The laplacian bands from each image were then combined together through addition. The images were then combined by  adding the mixed laplacians for each band 
+and then compliing the seperate bands back into a single image. This process was never fully implemented into the pyramid functions becasue whenever the code would run,
+an error involving the multiple color bands would appear, so I would have to flatten the image.</p>
+
+<pre><code>
+
+def blend(img1,img2):
+
+    b, g, r    = img1[:, :, 0], img1[:, :, 1], img1[:, :, 2] # For RGB image
+    b2, g2, r2    = img2[:, :, 0], img2[:, :, 1], img2[:, :, 2] # For RGB image
+
+    gaussian_kernel = (1.0/256)*np.array([[1, 4,  6,  4,  1],
+    					[4, 16, 24, 16, 4],
+    					[6, 24, 72, 24, 6],
+    					[4, 16, 24, 16, 4],
+    					[1, 4,  6,  4,  1]])
+    gaussian_blur_b = filters.convolve(b,gaussian_kernel, mode='reflect')
+    gaussian_blur_g = filters.convolve(g,gaussian_kernel, mode='reflect')
+    gaussian_blur_r = filters.convolve(r,gaussian_kernel, mode='reflect')
+
+    gaussian_blur_b2 = filters.convolve(b2,gaussian_kernel, mode='reflect')
+    gaussian_blur_g2 = filters.convolve(g2,gaussian_kernel, mode='reflect')
+    gaussian_blur_r2 = filters.convolve(r2,gaussian_kernel, mode='reflect')
+
+    laplacian_b = gaussian_blur_b - b
+    laplacian_g = gaussian_blur_g - g
+    laplacian_r = gaussian_blur_r - r
+
+    laplacian_b2 = gaussian_blur_b2 - b2
+    laplacian_g2 = gaussian_blur_g2 - g2
+    laplacian_r2 = gaussian_blur_r2 - r2
+
+    mixed_laplacian_b = laplacian_b+laplacian_b2
+    mixed_laplacian_g = laplacian_g+laplacian_g2
+    mixed_laplacian_r = laplacian_r+laplacian_r2
+
+    mixed_gaussian_b = gaussian_blur_b+gaussian_blur_b2
+    mixed_gaussian_g = gaussian_blur_g+gaussian_blur_g2
+    mixed_gaussian_r = gaussian_blur_r+gaussian_blur_r2
+
+    blended_img_b = mixed_gaussian_b+mixed_laplacian_b
+    blended_img_g = mixed_laplacian_g+mixed_laplacian_g
+    blended_img_r = mixed_laplacian_r+mixed_laplacian_r
+
+    rgb_uint8 = (np.dstack((blended_img_b,blended_img_g,blended_img_r))) .astype(np.uint8)   
+
+    return rgb_uint8
+
+</code></pre>
+
+
+<div style="clear:both" >
+<h3>Conclusion</h3>
+<p>In conclusion, this project was very challenging but I learned a great deal about computing functions with images. It is dissapointing that I was not able to get the 
+pyramids fully functioning, however with a few adjustments it should be able to run correctly. Gaining more knowledge in the programming language will help with improving 
+the script more effiently, and I hope to replace the majority of the code by using 'for' loops. Blending the images while preserving color was very difficult but very interesting. I enjoyed the challenge of building this script completley from scratch but it was very challenging and I hope to be able to improve the code in order to render some actual results. </p>
+
+<p>
+Some supplemental materials that were used for inspiration:
+<a href="https://compvisionlab.wordpress.com/2013/05/13/image-blending-using-pyramid/">https://compvisionlab.wordpress.com/2013/05/13/image-blending-using-pyramid/</a>
+<a href="https://docs.opencv.org/3.2.0/dc/dff/tutorial_py_pyramids.html">https://docs.opencv.org/3.2.0/dc/dff/tutorial_py_pyramids.html</a>
+</p>
+</div> 
+</body>
+</html>
